@@ -4,46 +4,47 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 public class MailSender {
 
-        public static void sendMail() {
+    public static void sendMail() {
+        ScannerMail scannerMail = new ScannerMail();
+        scannerMail.getUserInput();
 
-            // Dane do połączenia z serwerem pocztowym
+        String yourMail = scannerMail.getYourMailAddress();
+        String mailPassword = scannerMail.getYourMailPassword();
+        String anotherMail = scannerMail.getAnotherMailAddress();
+
             String host = "smtp.wp.pl";
-            String from = "koraf9@wp.pl";
-            String to = "adamkaliszeski1@wp.pl";
+            String from = yourMail;
+            String to = anotherMail;
 
-            // Ustawienia autoryzacji
-            final String username = "koraf9@wp.pl";
-            final String password = "6439968";
+            final String username = yourMail;
+            final String password = mailPassword;
 
-            // Ustawienia właściwości
             Properties props = new Properties();
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", "true");
             props.put("mail.smtp.host", host);
             props.put("mail.smtp.port", "465");
 
-            //Protokół SSL/TLS
             props.put("mail.smtp.socketFactory.port", "465");
             props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
             props.put("mail.smtp.socketFactory.fallback", "false");
 
-            // Tworzenie sesji
             Session session = Session.getInstance(props, new javax.mail.Authenticator() {
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(username, password);
                 }
             });
 
-            try {
-                //String weatherEvaluationResult = AssessmentOfConditions.evaluateWeatherConditions();
-                // Tworzenie wiadomości
+        BuilderMailText builderMailText = new BuilderMailText();
+        String messageContent = builderMailText.buildMessageContent();
+
+        try {
                 Message message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(from));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
                 message.setSubject("Warunki pogodowe");
-                message.setText("weatherEvaluationResult");
+                message.setText(messageContent);
 
-                // Wysyłanie wiadomości
                 Transport.send(message);
 
                 System.out.println("Wiadomość została wysłana.");
